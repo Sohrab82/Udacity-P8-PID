@@ -39,15 +39,17 @@ Tips for setting up your environment can be found [here](https://classroom.udaci
 
 ## PID hyperparameters
 
+In the following, starting values for the hyperparameters, and the effects of changing them is presented.
+* `Rise Time`: how fast the system reacts to changes and compensates for errors
+* `Overshoot`: compensating the error but losing control afterwards but going right and left 
+
+
 |Closed Loop Response     | Rise Time     | Overshoot | Settling Time | Steady State Error    |
 | ----------------------- | ------------- | --------- | ------------- | ----------------------|
 |Increase Kp              | Decrease      | Increase  | Small change  | Decrease              |
 |Increase Ki              | Decrease      | Increase  | Increase      | Eliminate             | 
 |Increase Kd              | Small change  | Decrease  | Decrease      | Small change          |
 
-In the following, starting values for the hyperparameters, and the effects of changing them is presented.
-* `Rise Time`: how fast the system reacts to changes and compensates for errors
-* `Overshoot`: compensating the error but losing control afterwards but going right and left 
 
  * start (0.05, 0,0) works to some extent
  * add ki = 0.0001, overshoot and going left and right
