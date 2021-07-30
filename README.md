@@ -41,7 +41,7 @@ Tips for setting up your environment can be found [here](https://classroom.udaci
 
 In the following, starting values for the hyperparameters, and the effects of changing them is presented.
 * `Rise Time`: how fast the system reacts to changes and compensates for errors
-* `Overshoot`: compensating the error but losing control afterwards but going right and left 
+* `Overshoot`: compensating the error but losing control afterwards and going right and left 
 
 
 |Closed Loop Response     | Rise Time     | Overshoot | Settling Time | Steady State Error    |
