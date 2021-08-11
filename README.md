@@ -3,6 +3,17 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+[//]: # (Image References)
+
+[image1]: ./output_images/p_005.jpg "Images"
+[image2]: ./output_images/p_05.jpg "Training data distrib"
+[image3]: ./output_images/p_05_d_05.jpg "Validation data distrib"
+[image4]: ./output_images/p_05_d_5.jpg "Testing data distrib"
+[image41]: ./output_images/sample_30.jpg "speed 80"
+[image5]: ./output_images/lenet.jpg "lenet train"
+[image6]: ./output_images/incept.jpg "incept train"
+[image7]: ./output_images/new_images.jpg "new images"
+
 ## Dependencies
 
 * cmake >= 3.5
@@ -44,21 +55,35 @@ In the following, starting values for the hyperparameters, and the effects of ch
 * `Overshoot`: compensating the error but losing control afterwards and going right and left 
 
 
-|Closed Loop Response     | Rise Time     | Overshoot | Settling Time | Steady State Error    |
-| ----------------------- | ------------- | --------- | ------------- | ----------------------|
-|Increase Kp              | Decrease      | Increase  | Small change  | Decrease              |
-|Increase Ki              | Decrease      | Increase  | Increase      | Eliminate             | 
-|Increase Kd              | Small change  | Decrease  | Decrease      | Small change          |
+| Closed Loop Response | Rise Time    | Overshoot | Settling Time | Steady State Error |
+| -------------------- | ------------ | --------- | ------------- | ------------------ |
+| Increase Kp          | Decrease     | Increase  | Small change  | Decrease           |
+| Increase Ki          | Decrease     | Increase  | Increase      | Eliminate          |
+| Increase Kd          | Small change | Decrease  | Decrease      | Small change       |
 
 
- * start (0.05, 0,0) works to some extent
- * add ki = 0.0001, overshoot and going left and right
- * pid.Init(.03, 0.00005, 0.3);//works but caanot follow sharp turns
- * pid.Init(.05, 0.00005, 0.3);  //works but caanot follow sharp turns, a bit better following
- * pid.Init(.1, 0.00005, 0.3);   // too sensitive to curvature /error
- * pid.Init(.075, 0.00005, 0.3); // too sensitive to curvature /error starts going left and right
- * pid.Init(.05, 0.0005, 0.8);   // better perfomance but failed at too sharp corners
- * pid.Init(.08, 0.0005, 0.8);   // better perfomance , still slow to react, added steady state error
- * pid.Init(.14, 0.01, 12);
-    
+ Starting with PID controller parameters (0.05, 0,0), works to some extent, but the error grows as the car moves forward and it is hard for the car to follow the sharp curves.
+![alt text][image1]
+  
+Increasing the P parameter to 0.05 makes the response sharper, the car starts to sway side to side, and eventually drives out of the road. It can be seen that CTE reaches 5 much faster compared to previous case of P=0.05, and the steering angle correction goes out of range [-1, 1].
+![alt text][image2]
+* The sharp response represents a small "Rise Time",
+* the swaying represents a long settling time
+* the out-of-range steering angles shows overshoot
+
+By referring to the table above, it can be seen that adding a D-parameter can reduce both overshoot and settling time.
+Results for (0.5, 0, 0.5) can be seen here
+![alt text][image3]
+As expected, the overshoot and swaying was reduced, but the car still drove out of the road.
+
+By increasing the D-parameter to 5, the following results were obtained
+![alt text][image4]
+
+The error (CTE) is contained and the steering angle has a nicer response. The car manages to go around the track without going off-road, but has a sharp response around the corners.
+
+To study the effects of I-parameter, I=0.5 (0.5, 0.5, 5) was considered and the car drove off-road right away.
+
+Reducing I-parameter to 0.005 fixed the issue, but in this case, as the car in the simulator has no consistent errors, the I-parameter is not beneficial since the I-parameter more or less has the same effects of the D-parameter except in compensating the steady-state errors.
+
+
 

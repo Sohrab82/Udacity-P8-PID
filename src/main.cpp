@@ -2,6 +2,8 @@
 #include <uWS/uWS.h>
 #include <iostream>
 #include <string>
+#include <vector>
+#include <fstream>
 #include "json.hpp"
 #include "PID.h"
 
@@ -40,18 +42,25 @@ int main()
     // start (0.05, 0,0) works to some extent
     // add ki = 0.0001 overshoot and twirlling
     // reduce kp to 0.3
+
+    // rewrite the file
     // pid.Init(.03, 0.00005, 0.3);//works but caanot follow sharp turns
-    pid.Init(.05, 0.00005, 0.3);  //works but caanot follow sharp turns, a bit better following
-    pid.Init(.1, 0.00005, 0.3);   // too sensitive to curvature /error
-    pid.Init(.075, 0.00005, 0.3); // too sensitive to curvature /error starts twirlling
-    pid.Init(.05, 0.0005, 0.8);   // better perfomance but failed at too sharp corners
-    pid.Init(.08, 0.0005, 0.8);   // better perfomance , still slow to react, added steady state error (twirlling on the bridge)
-    pid.Init(.14, 0.01, 12);
+    std::ofstream out_file("output.csv", std::ios::out);
+    out_file.close();
+
+    std::vector<float> steerings;
+    pid.Init(0.5, 0.0, 5); //works but caanot follow sharp turns, a bit better following
+    // pid.Init(.1, 0.00005, 0.3);   // too sensitive to curvature /error
+    // pid.Init(.075, 0.00005, 0.3); // too sensitive to curvature /error starts twirlling
+    // pid.Init(.05, 0.0005, 0.8);   // better perfomance but failed at too sharp corners
+    // pid.Init(.08, 0.0005, 0.8);   // better perfomance , still slow to react, added steady state error (twirlling on the bridge)
+    // pid.Init(.14, 0.01, 12);
 
     // pid.Init(0.1, 0.05, 2.);
     h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                        uWS::OpCode opCode)
                 {
+                    std::ofstream out_file("output.csv", std::ios::out | std::ios::app);
                     // "42" at the start of the message means there's a websocket message event.
                     // The 4 signifies a websocket message
                     // The 2 signifies a websocket event
@@ -75,7 +84,7 @@ int main()
                                 double steer_value;
                                 pid.UpdateError(cte);
                                 steer_value = pid.TotalError();
-
+                                static_cast<void>(angle);
                                 // DEBUG
                                 std::cout << "CTE: " << cte << " Steering Value: " << steer_value
                                           << std::endl;
@@ -83,12 +92,23 @@ int main()
                                     steer_value = 1.0;
                                 if (steer_value < -1.0)
                                     steer_value = -1.0;
-
+                                // moving average filter: did not work. added a lot of veering
+                                // float cumsum = 0.0;
+                                // for (size_t i = 0; i < steerings.size(); i++)
+                                //     cumsum += steerings[i];
+                                // cumsum += steer_value;
+                                // steer_value = cumsum / (steerings.size() + 1);
+                                // steerings.push_back(steer_value);
+                                // if (steerings.size() > 3)
+                                // {
+                                //     steerings.erase(steerings.begin());
+                                // }
+                                out_file << cte << "," << steer_value << "," << speed << std::endl;
                                 json msgJson;
                                 msgJson["steering_angle"] = steer_value;
                                 msgJson["throttle"] = 0.3;
                                 auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-                                std::cout << msg << std::endl;
+                                // std::cout << msg << std::endl;
                                 ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
                             } // end "telemetry" if
                         }
